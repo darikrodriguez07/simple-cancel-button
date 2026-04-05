@@ -39,6 +39,11 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        cancel: {
+          DEFAULT: "hsl(var(--cancel-bg))",
+          hover: "hsl(var(--cancel-bg-hover))",
+          foreground: "hsl(var(--cancel-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
