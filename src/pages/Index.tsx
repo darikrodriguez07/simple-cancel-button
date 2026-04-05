@@ -1,44 +1,75 @@
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 
 /**
  * ============================================
- *  PÁGINA DE CANCELACIÓN
+ *  PÁGINA DE CANCELACIÓN CON N8N
  * ============================================
  *  
- *  PERSONALIZACIÓN RÁPIDA:
+ *  WEBHOOK URL ← CAMBIA AQUÍ:
+ *  const WEBHOOK_URL = "https://tu-n8n.app/webhook/cancelar-cita";
  *  
- *  🎨 Colores → src/index.css (variables CSS)
- *     --cancel-bg         → color del botón
- *     --cancel-bg-hover   → color hover del botón
- *     --cancel-foreground  → color del texto del botón
- *     --primary            → color principal de la marca
- *  
- *  🖼️ Logo → reemplaza la imagen en src/assets/logo.png
- *     o cambia la URL en el <img> de abajo
- *  
- *  📝 Textos → edita directamente en este archivo
- * ============================================
+ *  PERSONALIZACIÓN RÁPIDA (igual que antes):
+ *  🎨 Colores → src/index.css
+ *  🖼️ Logo → src/assets/logo.png
+ *  📝 Textos → edita directamente
  */
 
-const Index = () => {
-  const [cancelled, setCancelled] = useState(false);
+const WEBHOOK_URL = "https://dariikk.app.n8n.cloud/webhook/cancelar-cita"; // ← TU URL AQUÍ
 
-  const handleCancel = () => {
-    setCancelled(true);
+const Index = () => {
+  const [searchParams] = useSearchParams();
+  const [cancelled, setCancelled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const leadId = searchParams.get("leadId");
+
+  const handleCancel = async () => {
+    if (!leadId) {
+      setError("❌ No se encontró el ID del lead en la URL");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId }),
+      });
+
+      if (response.ok) {
+        setCancelled(true);
+      } else {
+        setError("❌ Error del servidor");
+      }
+    } catch (err) {
+      setError("❌ Error de conexión");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
-        {/* === LOGO: reemplaza src o añade tu imagen === */}
+        {/* === LOGO (sin cambios) === */}
         <div className="mb-8 flex justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-3xl font-bold text-primary-foreground">
             ✕
           </div>
-          {/* Para usar un logo personalizado, descomenta esto:
-          <img src="/logo.png" alt="Logo" className="h-16 w-auto" />
-          */}
         </div>
+
+        {/* === MOSTRAR LEAD ID === */}
+        {leadId && (
+          <div className="mb-4 p-3 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">Lead ID:</p>
+            <p className="font-mono font-semibold text-foreground">{leadId}</p>
+          </div>
+        )}
 
         {!cancelled ? (
           <div className="space-y-6">
@@ -46,20 +77,30 @@ const Index = () => {
               ¿Deseas cancelar?
             </h1>
             <p className="text-muted-foreground">
-              Esta acción no se puede deshacer. Por favor, confirma que deseas
-              continuar con la cancelación.
+              Esta acción no se puede deshacer. Se notificará al equipo.
             </p>
+
+            {error && (
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                <p className="text-destructive text-sm">{error}</p>
+              </div>
+            )}
 
             <div className="flex flex-col gap-3 pt-2">
               <button
                 onClick={handleCancel}
-                className="w-full rounded-lg bg-cancel px-6 py-3 font-medium text-cancel-foreground transition-colors hover:bg-cancel-hover"
+                disabled={loading || !leadId}
+                className="w-full rounded-lg bg-cancel px-6 py-3 font-medium text-cancel-foreground transition-colors hover:bg-cancel-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirmar cancelación
+                {loading 
+                  ? "Cancelando..." 
+                  : "Confirmar cancelación"
+                }
               </button>
               <button
                 onClick={() => window.history.back()}
                 className="w-full rounded-lg border border-border bg-card px-6 py-3 font-medium text-foreground transition-colors hover:bg-secondary"
+                disabled={loading}
               >
                 Volver atrás
               </button>
@@ -74,7 +115,7 @@ const Index = () => {
               Cancelación confirmada
             </h1>
             <p className="text-muted-foreground">
-              Tu solicitud ha sido procesada correctamente.
+              Tu cita ha sido cancelada correctamente (Lead: {leadId}).
             </p>
           </div>
         )}
