@@ -63,14 +63,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* === MOSTRAR LEAD ID === */}
-        {leadId && (
-          <div className="mb-4 p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">Lead ID:</p>
-            <p className="font-mono font-semibold text-foreground">{leadId}</p>
-          </div>
-        )}
-
         {!cancelled ? (
           <div className="space-y-6">
             <h1 className="text-2xl font-semibold text-foreground">
