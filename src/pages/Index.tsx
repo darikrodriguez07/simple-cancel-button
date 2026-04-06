@@ -23,7 +23,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const leadId = searchParams.get("leadId");
+  const id = searchParams.get("id");
 
   const handleCancel = async () => {
     if (!leadId) {
