@@ -107,7 +107,7 @@ const Index = () => {
               Cancelación confirmada
             </h1>
             <p className="text-muted-foreground">
-              Tu cita ha sido cancelada correctamente (Lead: {leadId}).
+              Tu cita ha sido cancelada correctamente.
             </p>
           </div>
         )}
