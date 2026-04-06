@@ -26,8 +26,8 @@ const Index = () => {
   const id = searchParams.get("id");
 
   const handleCancel = async () => {
-    if (!leadId) {
-      setError("❌ No se encontró el ID del lead en la URL");
+    if (!id) {
+      setError("❌ No se encontró el ID en la URL");
       return;
     }
 
@@ -38,7 +38,7 @@ const Index = () => {
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId }),
+        body: JSON.stringify({ id }),
       });
 
       if (response.ok) {
