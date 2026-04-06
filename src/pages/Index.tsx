@@ -23,11 +23,11 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const leadId = searchParams.get("leadId");
+  const id = searchParams.get("id");
 
   const handleCancel = async () => {
-    if (!leadId) {
-      setError("❌ No se encontró el ID del lead en la URL");
+    if (!id) {
+      setError("❌ No se encontró el ID en la URL");
       return;
     }
 
@@ -38,7 +38,7 @@ const Index = () => {
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId }),
+        body: JSON.stringify({ id }),
       });
 
       if (response.ok) {
@@ -81,7 +81,7 @@ const Index = () => {
             <div className="flex flex-col gap-3 pt-2">
               <button
                 onClick={handleCancel}
-                disabled={loading || !leadId}
+                disabled={loading || !id}
                 className="w-full rounded-lg bg-cancel px-6 py-3 font-medium text-cancel-foreground transition-colors hover:bg-cancel-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading 
@@ -107,7 +107,7 @@ const Index = () => {
               Cancelación confirmada
             </h1>
             <p className="text-muted-foreground">
-              Tu cita ha sido cancelada correctamente (Lead: {leadId}).
+              Tu cita ha sido cancelada correctamente.
             </p>
           </div>
         )}
