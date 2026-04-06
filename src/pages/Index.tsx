@@ -81,7 +81,7 @@ const Index = () => {
             <div className="flex flex-col gap-3 pt-2">
               <button
                 onClick={handleCancel}
-                disabled={loading || !leadId}
+                disabled={loading || !id}
                 className="w-full rounded-lg bg-cancel px-6 py-3 font-medium text-cancel-foreground transition-colors hover:bg-cancel-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading 
