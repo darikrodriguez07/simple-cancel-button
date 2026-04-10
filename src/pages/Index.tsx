@@ -3,19 +3,24 @@ import { useState } from "react";
 
 /**
  * ============================================
- *  PÁGINA DE CANCELACIÓN CON N8N
+ *  PÁGINA DE CANCELACIÓN — MULTI-TENANT
  * ============================================
- *  
- *  WEBHOOK URL ← CAMBIA AQUÍ:
- *  const WEBHOOK_URL = "https://tu-n8n.app/webhook/cancelar-cita";
- *  
- *  PERSONALIZACIÓN RÁPIDA (igual que antes):
+ *
+ *  URL de cancelación que genera n8n para cada lead:
+ *  https://tucancel.com?id=ABC123&client_id=inmo_x
+ *
+ *  El parámetro "id"        → identifica la cita concreta
+ *  El parámetro "client_id" → identifica la inmobiliaria
+ *
+ *  n8n recibe ambos y sabe exactamente qué Sheet,
+ *  Calendar y agente gestionar. Sin tocar este código.
+ *
+ *  PERSONALIZACIÓN:
  *  🎨 Colores → src/index.css
- *  🖼️ Logo → src/assets/logo.png
- *  📝 Textos → edita directamente
+ *  📝 Textos  → edita directamente en este archivo
  */
 
-const WEBHOOK_URL = "https://dariikk.app.n8n.cloud/webhook/cancelar-cita"; // ← TU URL AQUÍ
+const WEBHOOK_URL = "https://dariikk.app.n8n.cloud/webhook/cancelar-cita";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -23,11 +28,18 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ── MULTI-TENANT: leer id y client_id de la URL ──
+  // Ejemplo: https://tucancel.com?id=ABC123&client_id=inmo_x
   const id = searchParams.get("id");
+  const clientId = searchParams.get("client_id");
 
   const handleCancel = async () => {
     if (!id) {
-      setError("❌ No se encontró el ID en la URL");
+      setError("❌ No se encontró el ID de la cita en la URL.");
+      return;
+    }
+    if (!clientId) {
+      setError("❌ URL incorrecta. Contacta con tu asesor.");
       return;
     }
 
@@ -38,16 +50,19 @@ const Index = () => {
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({
+          id,                  // identifica la cita
+          client_id: clientId, // ← NUEVO: identifica la inmobiliaria
+        }),
       });
 
       if (response.ok) {
         setCancelled(true);
       } else {
-        setError("❌ Error del servidor");
+        setError("❌ Error del servidor. Inténtalo de nuevo.");
       }
     } catch (err) {
-      setError("❌ Error de conexión");
+      setError("❌ Error de conexión. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -56,7 +71,8 @@ const Index = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
-        {/* === LOGO (sin cambios) === */}
+
+        {/* === LOGO === */}
         <div className="mb-8 flex justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-3xl font-bold text-primary-foreground">
             ✕
@@ -66,7 +82,7 @@ const Index = () => {
         {!cancelled ? (
           <div className="space-y-6">
             <h1 className="text-2xl font-semibold text-foreground">
-              ¿Deseas cancelar?
+              ¿Deseas cancelar tu cita?
             </h1>
             <p className="text-muted-foreground">
               Esta acción no se puede deshacer. Se notificará al equipo.
@@ -81,13 +97,10 @@ const Index = () => {
             <div className="flex flex-col gap-3 pt-2">
               <button
                 onClick={handleCancel}
-                disabled={loading || !id}
+                disabled={loading || !id || !clientId}
                 className="w-full rounded-lg bg-cancel px-6 py-3 font-medium text-cancel-foreground transition-colors hover:bg-cancel-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading 
-                  ? "Cancelando..." 
-                  : "Confirmar cancelación"
-                }
+                {loading ? "Cancelando..." : "Confirmar cancelación"}
               </button>
               <button
                 onClick={() => window.history.back()}
